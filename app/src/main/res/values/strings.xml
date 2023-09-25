@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">pMusic</string>
+    <string name="favorites">Favorites</string>
+    <string name="albums">Albums</string>
+    <string name="recent_songs">Recent songs</string>
+    <string name="no_songs_found">No songs found</string>
+    <string name="online">Online</string>
+    <string name="recent">Recent</string>
+    <string name="search">Search</string>
+    <string name="song_title">Title of the song</string>
+</resources>

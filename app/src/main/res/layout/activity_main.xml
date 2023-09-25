@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/activities"
+        android:background="@color/orange_200">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/recent_page"
+                android:layout_width="150dp"
+                android:layout_height="match_parent"
+                android:text="@string/recent"
+                android:textSize="20sp"
+                android:textColor="@color/black"
+                android:textAllCaps="false"
+                style="?android:attr/buttonBarButtonStyle" />
+
+            <Button
+                android:id="@+id/albums_page"
+                android:layout_width="150dp"
+                android:layout_height="match_parent"
+                android:text="@string/albums"
+                android:textSize="20sp"
+                android:textColor="@color/black"
+                android:textAllCaps="false"
+                style="?android:attr/buttonBarButtonStyle" />
+
+            <Button
+                android:id="@+id/favorites_page"
+                android:layout_width="150dp"
+                android:layout_height="match_parent"
+                android:text="@string/favorites"
+                android:textSize="20sp"
+                android:textColor="@color/black"
+                android:textAllCaps="false"
+                tools:ignore="RelativeOverlap"
+                style="?android:attr/buttonBarButtonStyle" />
+
+            <Button
+                android:id="@+id/online_page"
+                android:layout_width="150dp"
+                android:layout_height="match_parent"
+                android:text="@string/online"
+                android:textSize="20sp"
+                android:textColor="@color/black"
+                android:textAllCaps="false"
+                tools:ignore="RelativeOverlap"
+                style="?android:attr/buttonBarButtonStyle" />
+
+        </LinearLayout>
+
+    </HorizontalScrollView>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:id="@+id/songs_text"
+        android:text="@string/recent_songs"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:padding="15dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/activities"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/no_songs_txt"
+        android:textSize="30sp"
+        android:text="@string/no_songs_found"
+        android:layout_centerInParent="true"
+        android:visibility="gone"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/recycler_view"
+        android:layout_above="@+id/mini_player"
+        android:layout_below="@id/songs_text" />
+
+    <RelativeLayout
+        android:id="@+id/mini_player"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/mini_player"
+        android:clickable="true"
+        android:focusable="true">
+
+        <ImageView
+            android:id="@+id/disk"
+            android:src="@drawable/vinyl"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="10dp"
+            android:layout_alignParentStart="true"/>
+
+        <TextView
+            android:id="@+id/song_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_toEndOf="@+id/disk"
+            android:layout_toStartOf="@+id/play_previous"
+            android:layout_centerVertical="true"
+            android:textSize="22sp"
+            android:text="@string/song_title"
+            android:ellipsize="marquee"
+            android:singleLine="true"/>
+
+        <ImageButton
+            android:id="@+id/play_previous"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@+id/pause"
+            android:background="?android:attr/selectableItemBackground"
+            android:src="@drawable/baseline_skip_previous_24"
+            android:scaleType="centerInside"
+            tools:ignore="SpeakableTextPresentCheck" />
+
+        <ImageButton
+            android:id="@+id/pause"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@+id/play_next"
+            android:background="?android:attr/selectableItemBackground"
+            android:src="@drawable/baseline_pause_24"
+            android:scaleType="centerInside"
+            tools:ignore="SpeakableTextPresentCheck" />
+
+        <ImageButton
+            android:id="@+id/play_next"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="15dp"
+            android:background="?android:attr/selectableItemBackground"
+            android:src="@drawable/baseline_skip_next_24"
+            android:scaleType="centerInside"
+            tools:ignore="SpeakableTextPresentCheck" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

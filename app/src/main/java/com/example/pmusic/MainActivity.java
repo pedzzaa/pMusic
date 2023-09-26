@@ -1,13 +1,5 @@
 package com.example.pmusic;
 
-/*
-*
-* TODO: trenutni problem
-* Sad jedino imas da popravis to kad krece da svira pjesmu opet.
-* Trenutno je svaki put pusta opet a to ne treba tako.
-*
-*/
-
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;

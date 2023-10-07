@@ -11,6 +11,7 @@ public class MyMediaPlayer {
     private static MediaPlayer mediaPlayer;
     private SharedPreferences preferences;
     private static final String PREF_CURRENT_SONG_ID = "current_song_id";
+    int totalSongs;
 
     public MyMediaPlayer(Context context) {
         if (context != null) {
@@ -39,7 +40,7 @@ public class MyMediaPlayer {
     }
 
     public void shuffleSongs(SQLDatabase db) {
-        int totalSongs = db.getCount();
+        totalSongs = db.getCount();
         if (totalSongs > 0) {
             int randomID = new Random().nextInt(totalSongs) + 1;
             SongModel randomSong = db.getSong(randomID);
@@ -51,28 +52,44 @@ public class MyMediaPlayer {
 
     public SongModel playNext(SQLDatabase db) {
         mediaPlayer.reset();
+        totalSongs = db.getCount();
+
         SongModel currentSong = db.getSong(getCurrentSongId());
-        if (currentSong != null) {
-            SongModel nextSong = db.getSong(currentSong.getId() + 1);
+        SongModel nextSong;
+
+        if (currentSong != null && currentSong.getId() != totalSongs) {
+            nextSong = db.getSong(currentSong.getId() + 1);
             if (nextSong != null) {
                 setCurrentSongId(nextSong.getId());
             }
-            return nextSong;
+        }else{
+            nextSong = db.getSong(1);
+            if (nextSong != null) {
+                setCurrentSongId(nextSong.getId());
+            }
         }
-        return null;
+        return nextSong;
     }
 
     public SongModel playPrevious(SQLDatabase db) {
         mediaPlayer.reset();
+        totalSongs = db.getCount();
+
         SongModel currentSong = db.getSong(getCurrentSongId());
-        if (currentSong != null) {
-            SongModel previousSong = db.getSong(currentSong.getId() - 1);
+        SongModel previousSong;
+
+        if (currentSong != null && currentSong.getId() != 1) {
+            previousSong = db.getSong(currentSong.getId() - 1);
             if (previousSong != null) {
                 setCurrentSongId(previousSong.getId());
             }
-            return previousSong;
+        }else{
+            previousSong = db.getSong(totalSongs);
+            if (previousSong != null){
+                setCurrentSongId(previousSong.getId());
+            }
         }
-        return null;
+        return previousSong;
     }
 
     public void pausePlay(ImageButton button) {

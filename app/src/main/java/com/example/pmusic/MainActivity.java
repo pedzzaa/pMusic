@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity implements MusicUI {
     ImageButton playPrevious, playNext, pausePlay;
     MyMediaPlayer myMediaPlayer;
     //Button recent, albums, favorites, online;
-    SongModel currentSong, previousSong;
+    SongModel currentSong;
     SQLDatabase myDB;
     Cursor cursor;
     ArrayList<SongModel> songsList;
@@ -87,20 +87,20 @@ public class MainActivity extends AppCompatActivity implements MusicUI {
             pausePlay.setOnClickListener(v -> myMediaPlayer.pausePlay(pausePlay));
 
             playNext.setOnClickListener(v -> {
-                previousSong = currentSong;
                 currentSong = myMediaPlayer.playNext(myDB);
                 setResourcesWithMusic(currentSong.getId());
                 onResume();
             });
 
             playPrevious.setOnClickListener(v -> {
-                previousSong = currentSong;
                 currentSong = myMediaPlayer.playPrevious(myDB);
                 setResourcesWithMusic(currentSong.getId());
                 onResume();
             });
 
-            playMusic();
+            if(!myMediaPlayer.getPlayer().isPlaying()){
+                playMusic();
+            }
         } else {
             UtilsMain.showToast(MainActivity.this, "Couldn't play the song :(");
         }
@@ -108,13 +108,8 @@ public class MainActivity extends AppCompatActivity implements MusicUI {
 
     @Override
     public void playMusic() {
-        if (previousSong != null &&
-                myMediaPlayer.getPlayer().isPlaying() &&
-                currentSong.getId() == previousSong.getId()) {
-            return;
-        }
-
         myMediaPlayer.getPlayer().reset();
+
         try {
             myMediaPlayer.getPlayer().setDataSource(currentSong.getPath());
             myMediaPlayer.getPlayer().prepare();
@@ -275,7 +270,6 @@ public class MainActivity extends AppCompatActivity implements MusicUI {
         int selectedPosition = preferences.getInt("selectedPosition", -1);
         if (selectedPosition != -1) {
             recyclerView.scrollToPosition(selectedPosition);
-            //setResourcesWithMusic(myMediaPlayer.getCurrentSongId());
             runOnUiThread(() -> recyclerView.setAdapter(new MainAdapter(MainActivity.this, cursor, myMediaPlayer)));
         }
     }

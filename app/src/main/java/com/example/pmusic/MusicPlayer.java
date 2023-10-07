@@ -17,7 +17,7 @@ public class MusicPlayer extends AppCompatActivity implements MusicUI {
     SeekBar seekBar;
     ImageView musicIcon;
     ImageButton pausePlay, next, previous, chain_shuffle, like;
-    SongModel currentSong, previousSong;
+    SongModel currentSong;
     SharedPreferences preferences;
     MyMediaPlayer myMediaPlayer;
     SQLDatabase db;
@@ -47,7 +47,7 @@ public class MusicPlayer extends AppCompatActivity implements MusicUI {
 
         rotationAnimator = UtilsPlayer.setupRotationAnimator(musicIcon);
 
-        currentSong = db.getSong(getIntent().getIntExtra("songID", -1));
+        currentSong = db.getSong(myMediaPlayer.getCurrentSongId());
         setResourcesWithMusic(currentSong.getId());
         uiUpdateHandler.post(uiUpdateRunnable); // Update UI
         UtilsPlayer.seekBarChange(seekBar, myMediaPlayer.getPlayer(), musicIcon);
@@ -83,14 +83,12 @@ public class MusicPlayer extends AppCompatActivity implements MusicUI {
             pausePlay.setOnClickListener(v -> myMediaPlayer.pausePlay(pausePlay));
 
             next.setOnClickListener(v -> {
-                previousSong = currentSong;
                 currentSong = myMediaPlayer.playNext(db);
                 setResourcesWithMusic(currentSong.getId());
                 playMusic();
             });
 
             previous.setOnClickListener(v -> {
-                previousSong = currentSong;
                 currentSong = myMediaPlayer.playPrevious(db);
                 setResourcesWithMusic(currentSong.getId());
                 playMusic();
@@ -104,11 +102,6 @@ public class MusicPlayer extends AppCompatActivity implements MusicUI {
 
     @Override
     public void playMusic() {
-        if (previousSong != null
-                && myMediaPlayer.getPlayer().isPlaying()
-                && currentSong.getId() == previousSong.getId()) {
-            return;
-        }
         myMediaPlayer.getPlayer().reset();
 
         try {

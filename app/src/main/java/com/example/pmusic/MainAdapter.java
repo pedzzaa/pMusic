@@ -58,6 +58,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
 
             Intent intent = new Intent(context, MusicPlayer.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.putExtra("currentSong", id);
             context.startActivity(intent);
         });
     }

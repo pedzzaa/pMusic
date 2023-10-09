@@ -47,7 +47,7 @@ public class MusicPlayer extends AppCompatActivity implements MusicUI {
 
         rotationAnimator = UtilsPlayer.setupRotationAnimator(musicIcon);
 
-        currentSong = db.getSong(myMediaPlayer.getCurrentSongId());
+        currentSong = db.getSong(getIntent().getIntExtra("currentSong", -1));
         setResourcesWithMusic(currentSong.getId());
         uiUpdateHandler.post(uiUpdateRunnable); // Update UI
         UtilsPlayer.seekBarChange(seekBar, myMediaPlayer.getPlayer(), musicIcon);
@@ -94,7 +94,11 @@ public class MusicPlayer extends AppCompatActivity implements MusicUI {
                 playMusic();
             });
 
-            playMusic();
+            if(currentSong.getId() != myMediaPlayer.getCurrentSongId()){
+                playMusic();
+            }
+
+            myMediaPlayer.setCurrentSongId(songID);
         } else {
             UtilsMain.showToast(MusicPlayer.this, "Couldn't play the song :(");
         }
@@ -127,6 +131,7 @@ public class MusicPlayer extends AppCompatActivity implements MusicUI {
         next.setOnClickListener(null);
         pausePlay.setOnClickListener(null);
         previous.setOnClickListener(null);
+        finish();
         super.onDestroy();
     }
 }

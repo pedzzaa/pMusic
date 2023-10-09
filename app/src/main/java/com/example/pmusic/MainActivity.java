@@ -79,7 +79,6 @@ public class MainActivity extends AppCompatActivity implements MusicUI {
     @Override
     public void setResourcesWithMusic(int songID) {
         currentSong = myDB.getSong(songID);
-        myMediaPlayer.setCurrentSongId(songID);
 
         if(currentSong != null){
             songTitle.setText(currentSong.getTitle());

@@ -100,7 +100,6 @@ public class MusicPlayer extends AppCompatActivity implements MusicUI {
             });
 
             playMusic();
-
             myMediaPlayer.setCurrentSongId(songID);
         } else {
             UtilsMain.showToast(MusicPlayer.this, "Couldn't play the song :(");
@@ -112,7 +111,6 @@ public class MusicPlayer extends AppCompatActivity implements MusicUI {
         if(myMediaPlayer.getPlayer().isPlaying() && currentSong.getId() == myMediaPlayer.getCurrentSongId()){
             return;
         }
-
         myMediaPlayer.getPlayer().reset();
 
         try {

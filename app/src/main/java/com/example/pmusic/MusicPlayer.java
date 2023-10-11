@@ -84,26 +84,24 @@ public class MusicPlayer extends AppCompatActivity implements MusicUI {
             pausePlay.setOnClickListener(v -> myMediaPlayer.pausePlay(pausePlay));
 
             next.setOnClickListener(v -> {
-                currentSong = myMediaPlayer.isShuffleOn ? myMediaPlayer.shuffleSongs(db) : myMediaPlayer.playNext(db);
+                currentSong = myMediaPlayer.shuffleState() ? myMediaPlayer.shuffleSongs(db) : myMediaPlayer.playNext(db);
                 setResourcesWithMusic(currentSong.getId());
-                playMusic();
             });
 
             previous.setOnClickListener(v -> {
-                currentSong = myMediaPlayer.isShuffleOn ? myMediaPlayer.shuffleSongs(db) : myMediaPlayer.playPrevious(db);
+                currentSong = myMediaPlayer.shuffleState() ? myMediaPlayer.shuffleSongs(db) : myMediaPlayer.playPrevious(db);
                 setResourcesWithMusic(currentSong.getId());
-                playMusic();
             });
 
             chain_shuffle.setOnClickListener(v -> {
                 myMediaPlayer.toggleShuffle();
-                UtilsMain.showToast(MusicPlayer.this, myMediaPlayer.isShuffleOn ? "Shuffle is on" : "Shuffle is off");
+                UtilsMain.showToast(MusicPlayer.this, myMediaPlayer.shuffleState() ? "Shuffle is on" : "Shuffle is off");
                 myMediaPlayer.setShuffleResources(chain_shuffle);
             });
 
-            if(currentSong.getId() != myMediaPlayer.getCurrentSongId()){
+            //if(currentSong.getId() != myMediaPlayer.getCurrentSongId()) {
                 playMusic();
-            }
+            //}
 
             myMediaPlayer.setCurrentSongId(songID);
         } else {
@@ -123,7 +121,7 @@ public class MusicPlayer extends AppCompatActivity implements MusicUI {
             seekBar.setMax(myMediaPlayer.getPlayer().getDuration());
 
             myMediaPlayer.getPlayer().setOnCompletionListener(mp -> {
-                currentSong = myMediaPlayer.isShuffleOn ? myMediaPlayer.shuffleSongs(db) : myMediaPlayer.playNext(db);
+                currentSong = myMediaPlayer.shuffleState() ? myMediaPlayer.shuffleSongs(db) : myMediaPlayer.playNext(db);
                 setResourcesWithMusic(currentSong.getId());
             });
 

@@ -42,6 +42,7 @@ public class MyMediaPlayer {
 
     public SongModel shuffleSongs(SQLDatabase db) {
         totalSongs = db.getCount();
+
         if (totalSongs > 0) {
             int randomID = new Random().nextInt(totalSongs) + 1;
             SongModel randomSong = db.getSong(randomID);
@@ -51,6 +52,10 @@ public class MyMediaPlayer {
             return randomSong;
         }
         return null;
+    }
+
+    public boolean shuffleState(){
+        return isShuffleOn;
     }
 
     public void toggleShuffle(){

@@ -86,13 +86,13 @@ public class MainActivity extends AppCompatActivity implements MusicUI {
             pausePlay.setOnClickListener(v -> myMediaPlayer.pausePlay(pausePlay));
 
             playNext.setOnClickListener(v -> {
-                currentSong = myMediaPlayer.isShuffleOn ? myMediaPlayer.shuffleSongs(myDB) : myMediaPlayer.playNext(myDB);
+                currentSong = myMediaPlayer.shuffleState() ? myMediaPlayer.shuffleSongs(myDB) : myMediaPlayer.playNext(myDB);
                 setResourcesWithMusic(currentSong.getId());
                 onResume();
             });
 
             playPrevious.setOnClickListener(v -> {
-                currentSong = myMediaPlayer.isShuffleOn ? myMediaPlayer.shuffleSongs(myDB) : myMediaPlayer.playPrevious(myDB);
+                currentSong = myMediaPlayer.shuffleState() ? myMediaPlayer.shuffleSongs(myDB) : myMediaPlayer.playPrevious(myDB);
                 setResourcesWithMusic(currentSong.getId());
                 onResume();
             });
@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements MusicUI {
             myMediaPlayer.getPlayer().start();
 
             myMediaPlayer.getPlayer().setOnCompletionListener(mp -> {
-                currentSong = myMediaPlayer.isShuffleOn ? myMediaPlayer.shuffleSongs(myDB) : myMediaPlayer.playNext(myDB);
+                currentSong = myMediaPlayer.shuffleState() ? myMediaPlayer.shuffleSongs(myDB) : myMediaPlayer.playNext(myDB);
                 setResourcesWithMusic(currentSong.getId());
                 onResume();
             });

@@ -99,9 +99,7 @@ public class MusicPlayer extends AppCompatActivity implements MusicUI {
                 myMediaPlayer.setShuffleResources(chain_shuffle);
             });
 
-            //if(currentSong.getId() != myMediaPlayer.getCurrentSongId()) {
-                playMusic();
-            //}
+            playMusic();
 
             myMediaPlayer.setCurrentSongId(songID);
         } else {
@@ -111,6 +109,10 @@ public class MusicPlayer extends AppCompatActivity implements MusicUI {
 
     @Override
     public void playMusic() {
+        if(myMediaPlayer.getPlayer().isPlaying() && currentSong.getId() == myMediaPlayer.getCurrentSongId()){
+            return;
+        }
+
         myMediaPlayer.getPlayer().reset();
 
         try {

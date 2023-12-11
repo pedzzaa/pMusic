@@ -45,11 +45,7 @@ public class MyMediaPlayer {
 
         if (totalSongs > 0) {
             int randomID = new Random().nextInt(totalSongs) + 1;
-            SongModel randomSong = db.getSong(randomID);
-            if (randomSong != null) {
-                setCurrentSongId(randomSong.getId());
-            }
-            return randomSong;
+            return db.getSong(randomID);
         }
         return null;
     }
@@ -79,14 +75,8 @@ public class MyMediaPlayer {
 
         if (currentSong != null && currentSong.getId() != totalSongs) {
             nextSong = db.getSong(currentSong.getId() + 1);
-            if (nextSong != null) {
-                setCurrentSongId(nextSong.getId());
-            }
         }else{
             nextSong = db.getSong(1);
-            if (nextSong != null) {
-                setCurrentSongId(nextSong.getId());
-            }
         }
         return nextSong;
     }
@@ -100,14 +90,8 @@ public class MyMediaPlayer {
 
         if (currentSong != null && currentSong.getId() != 1) {
             previousSong = db.getSong(currentSong.getId() - 1);
-            if (previousSong != null) {
-                setCurrentSongId(previousSong.getId());
-            }
         }else{
             previousSong = db.getSong(totalSongs);
-            if (previousSong != null){
-                setCurrentSongId(previousSong.getId());
-            }
         }
         return previousSong;
     }

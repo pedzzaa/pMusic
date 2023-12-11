@@ -4,9 +4,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class SongModel implements Parcelable {
-    String path;
-    String title;
-    String duration;
+    private String path;
+    private String title;
+    private String duration;
     private boolean isChecked;
     public int id;
 

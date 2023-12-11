@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -51,6 +52,24 @@ public class MusicPlayer extends AppCompatActivity implements MusicUI {
         setResourcesWithMusic(currentSong.getId());
         uiUpdateHandler.post(uiUpdateRunnable); // Update UI
         UtilsPlayer.seekBarChange(seekBar, myMediaPlayer.getPlayer(), musicIcon);
+
+        pausePlay.setOnClickListener(function -> myMediaPlayer.pausePlay(pausePlay));
+
+        next.setOnClickListener(function -> {
+            currentSong = myMediaPlayer.shuffleState() ? myMediaPlayer.shuffleSongs(db) : myMediaPlayer.playNext(db);
+            setResourcesWithMusic(currentSong.getId());
+        });
+
+        previous.setOnClickListener(function -> {
+            currentSong = myMediaPlayer.shuffleState() ? myMediaPlayer.shuffleSongs(db) : myMediaPlayer.playPrevious(db);
+            setResourcesWithMusic(currentSong.getId());
+        });
+
+        chain_shuffle.setOnClickListener(function -> {
+            myMediaPlayer.toggleShuffle();
+            UtilsMain.showToast(MusicPlayer.this, myMediaPlayer.shuffleState() ? "Shuffle is on" : "Shuffle is off");
+            myMediaPlayer.setShuffleResources(chain_shuffle);
+        });
     }
 
     private final Handler uiUpdateHandler = new Handler(Looper.getMainLooper());
@@ -58,7 +77,7 @@ public class MusicPlayer extends AppCompatActivity implements MusicUI {
         @Override
         public void run() {
             if (myMediaPlayer != null) {
-                currentTimeTv.setText(UtilsPlayer.convertToMMS(myMediaPlayer.getPlayer().getCurrentPosition() + ""));
+                currentTimeTv.setText(UtilsPlayer.convertToMMS(String.valueOf(myMediaPlayer.getPlayer().getCurrentPosition())));
                 myMediaPlayer.setShuffleResources(chain_shuffle);
                 seekBar.setMax(myMediaPlayer.getPlayer().getDuration());
                 seekBar.setProgress(myMediaPlayer.getPlayer().getCurrentPosition());
@@ -80,24 +99,6 @@ public class MusicPlayer extends AppCompatActivity implements MusicUI {
         if (currentSong != null) {
             titleTv.setText(currentSong.getTitle());
             totalTimeTv.setText(UtilsPlayer.convertToMMS(currentSong.getDuration()));
-
-            pausePlay.setOnClickListener(v -> myMediaPlayer.pausePlay(pausePlay));
-
-            next.setOnClickListener(v -> {
-                currentSong = myMediaPlayer.shuffleState() ? myMediaPlayer.shuffleSongs(db) : myMediaPlayer.playNext(db);
-                setResourcesWithMusic(currentSong.getId());
-            });
-
-            previous.setOnClickListener(v -> {
-                currentSong = myMediaPlayer.shuffleState() ? myMediaPlayer.shuffleSongs(db) : myMediaPlayer.playPrevious(db);
-                setResourcesWithMusic(currentSong.getId());
-            });
-
-            chain_shuffle.setOnClickListener(v -> {
-                myMediaPlayer.toggleShuffle();
-                UtilsMain.showToast(MusicPlayer.this, myMediaPlayer.shuffleState() ? "Shuffle is on" : "Shuffle is off");
-                myMediaPlayer.setShuffleResources(chain_shuffle);
-            });
 
             playMusic();
             myMediaPlayer.setCurrentSongId(songID);

@@ -8,7 +8,7 @@ public class SongModel implements Parcelable {
     private String title;
     private String duration;
     private boolean isChecked;
-    public int id;
+    private final int id;
 
     public SongModel(int id, String path, String title, String duration) {
         this.id = id;

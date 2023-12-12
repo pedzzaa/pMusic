@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -34,6 +35,7 @@ import java.util.concurrent.Executors;
 public class MainActivity extends AppCompatActivity implements MusicUI {
     private static final int PERMISSION_REQUEST_CODE = 1;
     RecyclerView recyclerView;
+    RelativeLayout mini_player;
     TextView noMusicTextView, songTitle;
     ImageButton playPrevious, playNext, pausePlay;
     MyMediaPlayer myMediaPlayer;
@@ -60,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements MusicUI {
          * online = findViewById(R.id.online_page);
         */
 
+        mini_player = findViewById(R.id.mini_player);
         playPrevious = findViewById(R.id.play_previous);
         playNext = findViewById(R.id.play_next);
         pausePlay = findViewById(R.id.pause);
@@ -75,18 +78,25 @@ public class MainActivity extends AppCompatActivity implements MusicUI {
             loadSongs("");
         }
 
-        pausePlay.setOnClickListener(v -> myMediaPlayer.pausePlay(pausePlay));
+        pausePlay.setOnClickListener(function -> myMediaPlayer.pausePlay(pausePlay));
 
-        playNext.setOnClickListener(v -> {
+        playNext.setOnClickListener(function -> {
             currentSong = myMediaPlayer.shuffleState() ? myMediaPlayer.shuffleSongs(myDB) : myMediaPlayer.playNext(myDB);
             setResourcesWithMusic(currentSong.getId());
             onResume();
         });
 
-        playPrevious.setOnClickListener(v -> {
+        playPrevious.setOnClickListener(function -> {
             currentSong = myMediaPlayer.shuffleState() ? myMediaPlayer.shuffleSongs(myDB) : myMediaPlayer.playPrevious(myDB);
             setResourcesWithMusic(currentSong.getId());
             onResume();
+        });
+
+        mini_player.setOnClickListener(function -> {
+            Intent intent = new Intent(MainActivity.this, MusicPlayer.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.putExtra("currentSong", currentSong.getId());
+            startActivity(intent);
         });
     }
 
@@ -99,6 +109,7 @@ public class MainActivity extends AppCompatActivity implements MusicUI {
 
             if(!myMediaPlayer.getPlayer().isPlaying()){
                 playMusic();
+                myMediaPlayer.setCurrentSongId(songID);
             }
         } else {
             UtilsMain.showToast(MainActivity.this, "Couldn't play the song :(");

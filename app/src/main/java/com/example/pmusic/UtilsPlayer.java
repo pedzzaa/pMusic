@@ -15,7 +15,7 @@ public class UtilsPlayer {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if(mediaPlayer != null && fromUser){
                     mediaPlayer.seekTo(progress);
-                    image.setRotation((float) (progress * 720.0 / mediaPlayer.getDuration()));
+                    image.setRotation((float) (progress * 1080 / mediaPlayer.getDuration()));
                 }
             }
 
@@ -51,11 +51,6 @@ public class UtilsPlayer {
                 animator.pause();
             }
         }
-    }
-
-    public static void updateIcon(ImageView image, boolean onOff, int firstIcon, int secondIcon) {
-        int icon = onOff ? firstIcon : secondIcon;
-        image.setImageResource(icon);
     }
 
     public static ObjectAnimator setupRotationAnimator(ImageView icon) {

@@ -52,23 +52,7 @@ public class MusicPlayer extends AppCompatActivity implements MusicUI {
         uiUpdateHandler.post(uiUpdateRunnable); // Update UI
         UtilsPlayer.seekBarChange(seekBar, myMediaPlayer.getPlayer(), musicIcon);
 
-        pausePlay.setOnClickListener(function -> myMediaPlayer.pausePlay(pausePlay));
-
-        next.setOnClickListener(function -> {
-            currentSong = myMediaPlayer.shuffleState() ? myMediaPlayer.shuffleSongs(db) : myMediaPlayer.playNext(db);
-            setResourcesWithMusic(currentSong.getId());
-        });
-
-        previous.setOnClickListener(function -> {
-            currentSong = myMediaPlayer.shuffleState() ? myMediaPlayer.shuffleSongs(db) : myMediaPlayer.playPrevious(db);
-            setResourcesWithMusic(currentSong.getId());
-        });
-
-        chain_shuffle.setOnClickListener(function -> {
-            myMediaPlayer.toggleShuffle();
-            UtilsMain.showToast(MusicPlayer.this, myMediaPlayer.shuffleState() ? "Shuffle is on" : "Shuffle is off");
-            myMediaPlayer.setShuffleResources(chain_shuffle);
-        });
+        initButtonClickListeners();
     }
 
     private final Handler uiUpdateHandler = new Handler(Looper.getMainLooper());
@@ -77,7 +61,7 @@ public class MusicPlayer extends AppCompatActivity implements MusicUI {
         public void run() {
             if (myMediaPlayer != null) {
                 currentTimeTv.setText(UtilsPlayer.convertToMMS(String.valueOf(myMediaPlayer.getPlayer().getCurrentPosition())));
-                myMediaPlayer.setShuffleResources(chain_shuffle);
+                setShuffleIcon();
                 seekBar.setMax(myMediaPlayer.getPlayer().getDuration());
                 seekBar.setProgress(myMediaPlayer.getPlayer().getCurrentPosition());
 
@@ -95,12 +79,17 @@ public class MusicPlayer extends AppCompatActivity implements MusicUI {
 
     @Override
     public void setResourcesWithMusic(int songID) {
-        if (currentSong != null) {
+        if(myMediaPlayer.getPlayer().isPlaying() || songID == myMediaPlayer.getCurrentSongId()){
             titleTv.setText(currentSong.getTitle());
             totalTimeTv.setText(UtilsPlayer.convertToMMS(currentSong.getDuration()));
+            return;
+        }
 
-            playMusic();
+        if (currentSong != null) {
             myMediaPlayer.setCurrentSongId(songID);
+            titleTv.setText(currentSong.getTitle());
+            totalTimeTv.setText(UtilsPlayer.convertToMMS(currentSong.getDuration()));
+            playMusic();
         } else {
             UtilsMain.showToast(MusicPlayer.this, "Couldn't play the song :(");
         }
@@ -108,9 +97,6 @@ public class MusicPlayer extends AppCompatActivity implements MusicUI {
 
     @Override
     public void playMusic() {
-        if(myMediaPlayer.getPlayer().isPlaying() && currentSong.getId() == myMediaPlayer.getCurrentSongId()){
-            return;
-        }
         myMediaPlayer.getPlayer().reset();
 
         try {
@@ -128,6 +114,31 @@ public class MusicPlayer extends AppCompatActivity implements MusicUI {
         } catch (IOException e) {
             UtilsMain.showToast(MusicPlayer.this, "Something went wrong :(");
         }
+    }
+
+    private void initButtonClickListeners(){
+        pausePlay.setOnClickListener(function -> myMediaPlayer.pausePlay(pausePlay));
+
+        next.setOnClickListener(function -> {
+            currentSong = myMediaPlayer.shuffleState() ? myMediaPlayer.shuffleSongs(db) : myMediaPlayer.playNext(db);
+            setResourcesWithMusic(currentSong.getId());
+        });
+
+        previous.setOnClickListener(function -> {
+            currentSong = myMediaPlayer.shuffleState() ? myMediaPlayer.shuffleSongs(db) : myMediaPlayer.playPrevious(db);
+            setResourcesWithMusic(currentSong.getId());
+        });
+
+        chain_shuffle.setOnClickListener(function -> {
+            myMediaPlayer.toggleShuffle();
+            UtilsMain.showToast(MusicPlayer.this, myMediaPlayer.shuffleState() ? "Shuffle is on" : "Shuffle is off");
+            setShuffleIcon();
+        });
+    }
+
+    private void setShuffleIcon(){
+        chain_shuffle.setImageResource(myMediaPlayer.shuffleState()
+                ? R.drawable.baseline_shuffle_24 : R.drawable.baseline_cached_24);
     }
 
     @Override

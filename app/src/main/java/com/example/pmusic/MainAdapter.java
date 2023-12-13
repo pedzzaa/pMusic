@@ -18,8 +18,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
     private final Cursor cursor;
+    private final Context context;
     MyMediaPlayer myMediaPlayer;
-    Context context;
 
     public MainAdapter(Context context, Cursor cursor, MyMediaPlayer myMediaPlayer) {
         this.context = context;

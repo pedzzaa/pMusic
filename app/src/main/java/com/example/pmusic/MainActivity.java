@@ -33,17 +33,17 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity implements MusicUI {
-    private static final int PERMISSION_REQUEST_CODE = 1;
-    RecyclerView recyclerView;
-    RelativeLayout mini_player;
-    TextView noMusicTextView, songTitle;
-    ImageButton playPrevious, playNext, pausePlay;
-    MyMediaPlayer myMediaPlayer;
+    private static final int PERMISSION_REQUEST_CODE = 101;
+    private RecyclerView recyclerView;
+    private RelativeLayout miniPlayer;
+    private TextView noMusicTextView, songTitle;
+    private ImageButton playPrevious, playNext, pausePlay;
+    private MyMediaPlayer myMediaPlayer;
     //Button recent, albums, favorites, online;
-    SongModel currentSong;
-    SQLDatabase myDB;
-    Cursor cursor;
-    ArrayList<SongModel> songsList;
+    private SongModel currentSong;
+    private SQLDatabase myDB;
+    private Cursor cursor;
+    private ArrayList<SongModel> songsList;
 
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements MusicUI {
          * online = findViewById(R.id.online_page);
         */
 
-        mini_player = findViewById(R.id.mini_player);
+        miniPlayer = findViewById(R.id.mini_player);
         playPrevious = findViewById(R.id.play_previous);
         playNext = findViewById(R.id.play_next);
         pausePlay = findViewById(R.id.pause);
@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements MusicUI {
             onResume();
         });
 
-        mini_player.setOnClickListener(function -> {
+        miniPlayer.setOnClickListener(function -> {
             Intent intent = new Intent(MainActivity.this, MusicPlayer.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.putExtra("currentSong", currentSong.getId());
@@ -106,10 +106,10 @@ public class MainActivity extends AppCompatActivity implements MusicUI {
 
         if(currentSong != null){
             songTitle.setText(currentSong.getTitle());
+            myMediaPlayer.setCurrentSongId(songID);
 
             if(!myMediaPlayer.getPlayer().isPlaying()){
                 playMusic();
-                myMediaPlayer.setCurrentSongId(songID);
             }
         } else {
             UtilsMain.showToast(MainActivity.this, "Couldn't play the song :(");

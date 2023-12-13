@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import androidx.annotation.Nullable;
 
 public class SQLDatabase extends SQLiteOpenHelper {
-    Context context;
+    protected Context context;
     private static final String DATABASE_NAME = "AudioFiles";
     private static final int DATABASE_VERSION = 1;
 

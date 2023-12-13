@@ -11,8 +11,8 @@ public class MyMediaPlayer {
     private static MediaPlayer mediaPlayer;
     private SharedPreferences preferences;
     private static final String PREF_CURRENT_SONG_ID = "current_song_id";
-    boolean isShuffleOn = false;
-    int totalSongs;
+    private boolean isShuffleOn = false;
+    private int totalSongs;
 
     public MyMediaPlayer(Context context) {
         if (context != null) {
@@ -56,14 +56,6 @@ public class MyMediaPlayer {
 
     public void toggleShuffle(){
         isShuffleOn = !isShuffleOn;
-    }
-
-    public void setShuffleResources(ImageButton button){
-        if(isShuffleOn){
-            button.setImageResource(R.drawable.baseline_shuffle_24);
-        }else{
-            button.setImageResource(R.drawable.baseline_cached_24);
-        }
     }
 
     public SongModel playNext(SQLDatabase db) {

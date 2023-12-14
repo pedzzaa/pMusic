@@ -12,7 +12,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import java.io.IOException;
 
-public class MusicPlayer extends AppCompatActivity implements MusicUI {
+public class MusicPlayer extends AppCompatActivity implements Music {
     TextView titleTv, currentTimeTv, totalTimeTv;
     SeekBar seekBar;
     ImageView musicIcon;
@@ -79,20 +79,20 @@ public class MusicPlayer extends AppCompatActivity implements MusicUI {
 
     @Override
     public void setResourcesWithMusic(int songID) {
-        if(myMediaPlayer.getPlayer().isPlaying() || songID == myMediaPlayer.getCurrentSongId()){
-            titleTv.setText(currentSong.getTitle());
-            totalTimeTv.setText(UtilsPlayer.convertToMMS(currentSong.getDuration()));
+        if (currentSong == null) {
+            UtilsMain.showToast(MusicPlayer.this, "Couldn't play the song :(");
             return;
         }
 
-        if (currentSong != null) {
-            myMediaPlayer.setCurrentSongId(songID);
-            titleTv.setText(currentSong.getTitle());
-            totalTimeTv.setText(UtilsPlayer.convertToMMS(currentSong.getDuration()));
-            playMusic();
-        } else {
-            UtilsMain.showToast(MusicPlayer.this, "Couldn't play the song :(");
+        titleTv.setText(currentSong.getTitle());
+        totalTimeTv.setText(UtilsPlayer.convertToMMS(currentSong.getDuration()));
+
+        if (myMediaPlayer.getPlayer().isPlaying() || songID == myMediaPlayer.getCurrentSongId()) {
+            return;
         }
+
+        myMediaPlayer.setCurrentSongId(songID);
+        playMusic();
     }
 
     @Override
@@ -137,8 +137,7 @@ public class MusicPlayer extends AppCompatActivity implements MusicUI {
     }
 
     private void setShuffleIcon(){
-        chain_shuffle.setImageResource(myMediaPlayer.shuffleState()
-                ? R.drawable.baseline_shuffle_24 : R.drawable.baseline_cached_24);
+        chain_shuffle.setImageResource(myMediaPlayer.shuffleState() ? R.drawable.baseline_shuffle_24 : R.drawable.baseline_cached_24);
     }
 
     @Override
@@ -147,6 +146,7 @@ public class MusicPlayer extends AppCompatActivity implements MusicUI {
         next.setOnClickListener(null);
         pausePlay.setOnClickListener(null);
         previous.setOnClickListener(null);
+        chain_shuffle.setOnClickListener(null);
         finish();
         super.onDestroy();
     }

@@ -1,6 +1,6 @@
 package com.example.pmusic;
 
-public interface MusicUI {
+public interface Music {
     void setResourcesWithMusic(int songID);
     void playMusic();
 }

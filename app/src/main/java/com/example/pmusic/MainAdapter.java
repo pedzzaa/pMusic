@@ -17,8 +17,8 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
-    private final Cursor cursor;
     private final Context context;
+    Cursor cursor;
     MyMediaPlayer myMediaPlayer;
 
     public MainAdapter(Context context, Cursor cursor, MyMediaPlayer myMediaPlayer) {
@@ -54,7 +54,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
             SharedPreferences preferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
             preferences.edit().putInt("selectedPosition", selectedPosition).apply();
 
-            ((MusicUI) context).setResourcesWithMusic(id);
+            ((Music) context).setResourcesWithMusic(id);
 
             Intent intent = new Intent(context, MusicPlayer.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

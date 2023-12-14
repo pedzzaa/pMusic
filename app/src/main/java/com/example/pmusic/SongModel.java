@@ -4,10 +4,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class SongModel implements Parcelable {
-    private String path;
     private String title;
-    private String duration;
-    private boolean isChecked;
+    private boolean isFavorite;
+    private final String path;
+    private final String duration;
     private final int id;
 
     public SongModel(int id, String path, String title, String duration) {
@@ -53,36 +53,28 @@ public class SongModel implements Parcelable {
         return path;
     }
 
-    public void setPath(String path) {
-        this.path = path;
-    }
-
     public String getTitle() {
         return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
     }
 
     public String getDuration() {
         return duration;
     }
 
-    public void setDuration(String duration) {
-        this.duration = duration;
-    }
-
-    public void setChecked(boolean isChecked) {
-        this.isChecked = isChecked;
-    }
-
-    public boolean isChecked() {
-        return isChecked;
-    }
-
     public int getId() {
         return id;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setFavorite(boolean isChecked) {
+        this.isFavorite = isChecked;
+    }
+
+    public boolean isFavorite() {
+        return isFavorite;
     }
 
 }

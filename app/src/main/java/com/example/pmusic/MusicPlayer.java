@@ -79,7 +79,7 @@ public class MusicPlayer extends AppCompatActivity implements Music {
 
     @Override
     public void setResourcesWithMusic(int songID) {
-        if (currentSong == null) {
+        if (currentSong == null){
             UtilsMain.showToast(MusicPlayer.this, "Couldn't play the song :(");
             return;
         }
@@ -87,7 +87,7 @@ public class MusicPlayer extends AppCompatActivity implements Music {
         titleTv.setText(currentSong.getTitle());
         totalTimeTv.setText(UtilsPlayer.convertToMMS(currentSong.getDuration()));
 
-        if (myMediaPlayer.getPlayer().isPlaying() || songID == myMediaPlayer.getCurrentSongId()) {
+        if (myMediaPlayer.getPlayer().isPlaying() && songID == myMediaPlayer.getCurrentSongId()) {
             return;
         }
 

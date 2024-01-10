@@ -14,7 +14,6 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
@@ -24,7 +23,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.Executor;
@@ -89,9 +87,9 @@ public class MainActivity extends AppCompatActivity implements Music {
         }
 
         songTitle.setText(currentSong.getTitle());
-        myMediaPlayer.setCurrentSongId(songID);
 
         if(!myMediaPlayer.getPlayer().isPlaying()){
+            myMediaPlayer.setCurrentSongId(songID);
             playMusic();
         }
     }

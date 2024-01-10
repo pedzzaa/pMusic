@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +16,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
-    private final Context context;
+    Context context;
     Cursor cursor;
     MyMediaPlayer myMediaPlayer;
 
@@ -44,7 +43,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>{
         holder.titleTextView.setText(title);
 
         if (myMediaPlayer != null && myMediaPlayer.getCurrentSongId() == id) {
-            holder.card.setCardBackgroundColor(Color.parseColor("#B5E2FF"));
+            holder.card.setCardBackgroundColor(ContextCompat.getColor(context, R.color.selected_song));
         } else {
             holder.card.setCardBackgroundColor(ContextCompat.getColor(context, R.color.default_card_color));
         }

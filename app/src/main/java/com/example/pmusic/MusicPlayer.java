@@ -38,16 +38,14 @@ public class MusicPlayer extends AppCompatActivity implements Music {
         like = findViewById(R.id.like);
         previous = findViewById(R.id.previous);
         musicIcon = findViewById(R.id.vinyl);
-
         db = new SQLDatabase(MusicPlayer.this);
         myMediaPlayer = MyMediaPlayer.getInstance(this);
 
         titleTv.setSelected(true);
         preferences = getSharedPreferences("MyPreferences", MODE_PRIVATE);
-
         rotationAnimator = UtilsPlayer.setupRotationAnimator(musicIcon);
-
         currentSong = db.getSong(getIntent().getIntExtra("currentSong", -1));
+
         setResourcesWithMusic(currentSong.getId());
         uiUpdateHandler.post(uiUpdateRunnable); // Update UI
         UtilsPlayer.seekBarChange(seekBar, myMediaPlayer.getPlayer(), musicIcon);
@@ -79,13 +77,17 @@ public class MusicPlayer extends AppCompatActivity implements Music {
 
     @Override
     public void setResourcesWithMusic(int songID) {
+        currentSong = db.getSong(songID);
+
         if (currentSong == null){
             UtilsMain.showToast(MusicPlayer.this, "Couldn't play the song :(");
             return;
         }
 
-        titleTv.setText(currentSong.getTitle());
-        totalTimeTv.setText(UtilsPlayer.convertToMMS(currentSong.getDuration()));
+        runOnUiThread(() -> {
+            titleTv.setText(currentSong.getTitle());
+            totalTimeTv.setText(UtilsPlayer.convertToMMS(currentSong.getDuration()));
+        });
 
         if (myMediaPlayer.getPlayer().isPlaying() && songID == myMediaPlayer.getCurrentSongId()) {
             return;
@@ -106,10 +108,8 @@ public class MusicPlayer extends AppCompatActivity implements Music {
             seekBar.setProgress(0);
             seekBar.setMax(myMediaPlayer.getPlayer().getDuration());
 
-            myMediaPlayer.getPlayer().setOnCompletionListener(mp -> {
-                currentSong = myMediaPlayer.shuffleState() ? myMediaPlayer.shuffleSongs(db) : myMediaPlayer.playNext(db);
-                setResourcesWithMusic(currentSong.getId());
-            });
+            myMediaPlayer.getPlayer().setOnCompletionListener(mp -> setResourcesWithMusic(myMediaPlayer.shuffleState()
+                    ? myMediaPlayer.shuffleSongs() : myMediaPlayer.playNext()));
 
         } catch (IOException e) {
             UtilsMain.showToast(MusicPlayer.this, "Something went wrong :(");
@@ -118,16 +118,11 @@ public class MusicPlayer extends AppCompatActivity implements Music {
 
     private void initButtonClickListeners(){
         pausePlay.setOnClickListener(function -> myMediaPlayer.pausePlay(pausePlay));
+        next.setOnClickListener(function -> setResourcesWithMusic(myMediaPlayer.shuffleState()
+                ? myMediaPlayer.shuffleSongs() : myMediaPlayer.playNext()));
 
-        next.setOnClickListener(function -> {
-            currentSong = myMediaPlayer.shuffleState() ? myMediaPlayer.shuffleSongs(db) : myMediaPlayer.playNext(db);
-            setResourcesWithMusic(currentSong.getId());
-        });
-
-        previous.setOnClickListener(function -> {
-            currentSong = myMediaPlayer.shuffleState() ? myMediaPlayer.shuffleSongs(db) : myMediaPlayer.playPrevious(db);
-            setResourcesWithMusic(currentSong.getId());
-        });
+        previous.setOnClickListener(function -> setResourcesWithMusic(myMediaPlayer.shuffleState()
+                ? myMediaPlayer.shuffleSongs() : myMediaPlayer.playPrevious()));
 
         chain_shuffle.setOnClickListener(function -> {
             myMediaPlayer.toggleShuffle();

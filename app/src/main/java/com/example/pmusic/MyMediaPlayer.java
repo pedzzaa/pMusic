@@ -16,6 +16,9 @@ public class MyMediaPlayer {
 
     public MyMediaPlayer(Context context) {
         if (context != null) {
+            SQLDatabase db = new SQLDatabase(context);
+            totalSongs = db.getCount();
+
             preferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
             mediaPlayer = new MediaPlayer();
         }
@@ -40,14 +43,8 @@ public class MyMediaPlayer {
         return preferences.getInt(PREF_CURRENT_SONG_ID, -1);
     }
 
-    public SongModel shuffleSongs(SQLDatabase db) {
-        totalSongs = db.getCount();
-
-        if (totalSongs > 0) {
-            int randomID = new Random().nextInt(totalSongs) + 1;
-            return db.getSong(randomID);
-        }
-        return null;
+    public int shuffleSongs() {
+        return (totalSongs > 0) ? new Random().nextInt(totalSongs) + 1 : -1;
     }
 
     public boolean shuffleState(){
@@ -58,34 +55,14 @@ public class MyMediaPlayer {
         isShuffleOn = !isShuffleOn;
     }
 
-    public SongModel playNext(SQLDatabase db) {
+    public int playNext() {
         mediaPlayer.reset();
-        totalSongs = db.getCount();
-
-        SongModel currentSong = db.getSong(getCurrentSongId());
-        SongModel nextSong;
-
-        if (currentSong != null && currentSong.getId() != totalSongs) {
-            nextSong = db.getSong(currentSong.getId() + 1);
-        }else{
-            nextSong = db.getSong(1);
-        }
-        return nextSong;
+        return (getCurrentSongId() != totalSongs) ? getCurrentSongId() + 1 : 1;
     }
 
-    public SongModel playPrevious(SQLDatabase db) {
+    public int playPrevious() {
         mediaPlayer.reset();
-        totalSongs = db.getCount();
-
-        SongModel currentSong = db.getSong(getCurrentSongId());
-        SongModel previousSong;
-
-        if (currentSong != null && currentSong.getId() != 1) {
-            previousSong = db.getSong(currentSong.getId() - 1);
-        }else{
-            previousSong = db.getSong(totalSongs);
-        }
-        return previousSong;
+        return (getCurrentSongId() != 1) ? getCurrentSongId() - 1 : totalSongs;
     }
 
     public void pausePlay(ImageButton button) {

@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements Music {
             return;
         }
 
-        songTitle.setText(currentSong.getTitle());
+        runOnUiThread(() -> songTitle.setText(currentSong.getTitle()));
 
         if(!myMediaPlayer.getPlayer().isPlaying()){
             myMediaPlayer.setCurrentSongId(songID);
@@ -104,8 +104,8 @@ public class MainActivity extends AppCompatActivity implements Music {
             myMediaPlayer.getPlayer().start();
 
             myMediaPlayer.getPlayer().setOnCompletionListener(mp -> {
-                currentSong = myMediaPlayer.shuffleState() ? myMediaPlayer.shuffleSongs(myDB) : myMediaPlayer.playNext(myDB);
-                setResourcesWithMusic(currentSong.getId());
+                setResourcesWithMusic(myMediaPlayer.shuffleState()
+                        ? myMediaPlayer.shuffleSongs() : myMediaPlayer.playNext());
                 onResume();
             });
 
@@ -260,16 +260,15 @@ public class MainActivity extends AppCompatActivity implements Music {
 
     private void initButtonClickListeners(){
         pausePlay.setOnClickListener(function -> myMediaPlayer.pausePlay(pausePlay));
-
         playNext.setOnClickListener(function -> {
-            currentSong = myMediaPlayer.shuffleState() ? myMediaPlayer.shuffleSongs(myDB) : myMediaPlayer.playNext(myDB);
-            setResourcesWithMusic(currentSong.getId());
+            setResourcesWithMusic(myMediaPlayer.shuffleState()
+                    ? myMediaPlayer.shuffleSongs() : myMediaPlayer.playNext());
             onResume();
         });
 
         playPrevious.setOnClickListener(function -> {
-            currentSong = myMediaPlayer.shuffleState() ? myMediaPlayer.shuffleSongs(myDB) : myMediaPlayer.playPrevious(myDB);
-            setResourcesWithMusic(currentSong.getId());
+            setResourcesWithMusic(myMediaPlayer.shuffleState()
+                ? myMediaPlayer.shuffleSongs() : myMediaPlayer.playPrevious());
             onResume();
         });
 
@@ -284,7 +283,6 @@ public class MainActivity extends AppCompatActivity implements Music {
     @Override
     protected void onResume() {
         super.onResume();
-
         SharedPreferences preferences = getSharedPreferences("MyPreferences", MODE_PRIVATE);
         int selectedPosition = preferences.getInt("selectedPosition", -1);
 

@@ -24,7 +24,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class Recent extends Fragment implements Loading {
-    private final String TAG = "RECENT_FRAGMENT";
+    private static final String fragment = "Recent";
+    private static final String TAG = "RECENT_FRAGMENT";
     private RecyclerView recentRecyclerView;
     private TextView noSongsText;
     private ArrayList<SongModel> songs;
@@ -38,7 +39,7 @@ public class Recent extends Fragment implements Loading {
 
         recentRecyclerView = view.findViewById(R.id.recent_recycle_view);
         noSongsText = view.findViewById(R.id.no_songs);
-        db = new SQLDatabase(getContext());
+        db = new SQLDatabase(requireContext());
         songs = new ArrayList<>();
 
         while(MusicService.isLoading){
@@ -54,8 +55,8 @@ public class Recent extends Fragment implements Loading {
         Cursor cursor = searchQuery.isEmpty() ? db.readAllMainTableData() : db.searchSongs(searchQuery);
         storeDataInArray(cursor);
 
-        recentRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recentRecyclerView.setAdapter(new MainAdapter(getContext(), cursor));
+        recentRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        recentRecyclerView.setAdapter(new MainAdapter(requireContext(), cursor, fragment));
         notifyAdapterForDataChanged();
     }
 

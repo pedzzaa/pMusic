@@ -9,16 +9,20 @@ import android.content.Intent;
 import android.content.Context;
 import android.widget.TextView;
 import android.widget.ImageView;
+
 import com.application.pmusic.R;
 import android.widget.ImageButton;
 import android.content.ComponentName;
 import android.animation.ObjectAnimator;
 import android.content.ServiceConnection;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
-import com.application.pmusic.Main.CommonFunctions;
+
 import com.application.pmusic.Service.MusicService;
 
 public class MusicPlayer extends AppCompatActivity implements MusicPlayerCallback {
+    private String fragmentIdentifier;
     private MusicService musicService;
     private TextView titleTv, currentTimeTv, totalTimeTv;
     private SeekBar seekBar;
@@ -31,6 +35,7 @@ public class MusicPlayer extends AppCompatActivity implements MusicPlayerCallbac
         public void onServiceConnected(ComponentName name, IBinder service) {
             MusicService.MusicBinder binder = (MusicService.MusicBinder) service;
             musicService = binder.getBoundService();
+            musicService.setCurrentFragment(fragmentIdentifier);
         }
 
         @Override
@@ -63,6 +68,8 @@ public class MusicPlayer extends AppCompatActivity implements MusicPlayerCallbac
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
 
         int songId = getIntent().getIntExtra("songId", -1);
+        fragmentIdentifier = getIntent().getStringExtra("fragment");
+
         if(songId != 0){
             onMusicPlayerReady(songId);
         }
@@ -82,7 +89,7 @@ public class MusicPlayer extends AppCompatActivity implements MusicPlayerCallbac
                 return;
             }
             musicService.setCurrentSongId(songId);
-            musicService.playSong();
+            musicService.playSong(0);
         }, 50);
     }
 
@@ -90,52 +97,54 @@ public class MusicPlayer extends AppCompatActivity implements MusicPlayerCallbac
     private final Runnable uiUpdateRunnable = new Runnable() {
         @Override
         public void run() {
-            if(musicService.getCurrentSong() != null){
-                currentTimeTv.setText(MusicPlayerHelper.convertToMMS(String.valueOf(musicService.getPlayer().getCurrentPosition())));
-                setShuffleAndLikeIcon();
-
-                seekBar.setMax(musicService.getPlayer().getDuration());
-                seekBar.setProgress(musicService.getPlayer().getCurrentPosition());
-
-                if (musicService.getPlayer().isPlaying()) {
-                    pausePlay.setImageResource(R.drawable.pause);
-                    MusicPlayerHelper.vinylAnimation(rotationAnimator, true);
-                } else {
-                    pausePlay.setImageResource(R.drawable.play);
-                    MusicPlayerHelper.vinylAnimation(rotationAnimator, false);
-                }
-                uiUpdateHandler.postDelayed(this, 50);
-            } else {
-                CommonFunctions.showToast(MusicPlayer.this, "Something went wrong :(");
+            if(musicService.getCurrentSong() == null){
+                Toast.makeText(MusicPlayer.this, "Something went wrong!", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            currentTimeTv.setText(MusicPlayerHelper.convertToMMS(String.valueOf(musicService.getPlayer().getCurrentPosition())));
+            setShuffleAndLikeIcon();
+            seekBar.setMax(musicService.getPlayer().getDuration());
+            seekBar.setProgress(musicService.getPlayer().getCurrentPosition());
+            if (musicService.getPlayer().isPlaying()) {
+                pausePlay.setImageResource(R.drawable.pause);
+                MusicPlayerHelper.vinylAnimation(rotationAnimator, true);
+            } else {
+                pausePlay.setImageResource(R.drawable.play);
+                MusicPlayerHelper.vinylAnimation(rotationAnimator, false);
+            }
+            uiUpdateHandler.postDelayed(this, 50);
         }
     };
 
     private void initButtonClickListeners(){
         pausePlay.setOnClickListener(function -> musicService.pausePlay());
 
-        next.setOnClickListener(function -> {
+        next.setOnClickListener(click -> {
             if (musicService.shuffleState()) {
                 musicService.shuffleSongs();
             } else {
-                musicService.playNext();
+                musicService.clicked("next");
             }
             setTitleAndDuration();
         });
 
-        previous.setOnClickListener(function -> {
-            musicService.playPrevious();
+        previous.setOnClickListener(click -> {
+            musicService.clicked("previous");
             setTitleAndDuration();
         });
 
         like.setOnClickListener(click -> {
             musicService.setFavorite();
             setShuffleAndLikeIcon();
+            //((Loading) MainActivity.getCurrentFragment()).displaySongs("");
+            // It's supposed to be a fix for constantly loading favorite songs, but it doesn't work
         });
 
-        chain_shuffle.setOnClickListener(function -> {
+        chain_shuffle.setOnClickListener(click -> {
             musicService.toggleShuffle();
-            CommonFunctions.showToast(MusicPlayer.this, musicService.shuffleState() ? "Shuffle is on" : "Shuffle is off");
+            Toast.makeText(MusicPlayer.this, musicService.shuffleState()
+                    ? "Shuffle is on" : "Shuffle is off", Toast.LENGTH_SHORT).show();
             setShuffleAndLikeIcon();
         });
     }
@@ -159,6 +168,7 @@ public class MusicPlayer extends AppCompatActivity implements MusicPlayerCallbac
         pausePlay.setOnClickListener(null);
         previous.setOnClickListener(null);
         chain_shuffle.setOnClickListener(null);
+        finish();
         super.onDestroy();
     }
 }

@@ -8,6 +8,8 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.util.Log;
+
+import com.application.pmusic.Adapters.VPAdapter;
 import com.application.pmusic.Database.SQLDatabase;
 import java.io.IOException;
 import java.util.Random;
@@ -16,10 +18,11 @@ import java.util.concurrent.Executors;
 
 public class MusicService extends Service {
     public MusicBinder binder = new MusicBinder();
+    public static boolean isLoading = false;
     private final String TAG = "STARTED_SERVICE";
+    private String currentFragment = null;
     private static int currentSongId = 0;
     private int totalSongs;
-    public static boolean isLoading = false;
     private boolean isShuffleOn = false;
     private SQLDatabase db;
     private SongModel currentSong;
@@ -43,22 +46,37 @@ public class MusicService extends Service {
         mediaPlayer = new MediaPlayer();
     }
 
+    public void clicked(String button){
+        String[] buttons = {"previous", "next"};
+
+        if(currentFragment.equals(VPAdapter.titles[0])){
+            if(button.equals(buttons[0])){
+                playPrevious();
+            }else{
+                playNext();
+            }
+            return;
+        }
+
+        playSong(1);
+    }
+
     public void shuffleSongs(){
         mediaPlayer.reset();
         setCurrentSongId(totalSongs > 0 ? new Random().nextInt(totalSongs) + 1 : -1);
-        playSong();
+        playSong(0);
     }
 
-    public void playNext(){
+    private void playNext(){
         mediaPlayer.reset();
         setCurrentSongId(currentSongId != totalSongs ? currentSongId + 1 : 1);
-        playSong();
+        playSong(0);
     }
 
-    public void playPrevious(){
+    private void playPrevious(){
         mediaPlayer.reset();
         setCurrentSongId(currentSongId != 1 ? currentSongId - 1 : totalSongs);
-        playSong();
+        playSong(0);
     }
 
     public void pausePlay(){
@@ -69,9 +87,17 @@ public class MusicService extends Service {
         }
     }
 
-    public void playSong(){
+    public void playSong(int identifier){
         mediaPlayer.reset();
-        currentSong = db.getSong(currentSongId);
+
+        switch (identifier){
+            case 0:
+                currentSong = db.getSong(currentSongId);
+                break;
+            case 1:
+                currentSong = db.getNextFavoriteSong(currentSongId);
+                break;
+        }
 
         try {
             mediaPlayer.setDataSource(currentSong.getPath());
@@ -88,42 +114,6 @@ public class MusicService extends Service {
         } catch (IOException e) {
             Log.d(TAG, "Something went wrong :(");
         }
-    }
-
-    public void toggleShuffle(){
-        isShuffleOn = !isShuffleOn;
-    }
-
-    public boolean shuffleState(){
-        return isShuffleOn;
-    }
-
-    public void setFavorite(){
-        db.toggleFavoriteSong(currentSongId);
-    }
-
-    public boolean isFavorite(){
-        return db.getFavoriteStatus(currentSongId) == 1;
-    }
-    public void setCurrentSongId(int songId) {
-        currentSongId = songId;
-    }
-
-    public static int getCurrentSongId() {
-        return currentSongId;
-    }
-
-    public SongModel getCurrentSong(){
-        return currentSong;
-    }
-
-    public MediaPlayer getPlayer(){
-        return mediaPlayer;
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return binder;
     }
 
     @Override
@@ -163,9 +153,54 @@ public class MusicService extends Service {
         });
     }
 
+    @Override
+    public IBinder onBind(Intent intent) {
+        return binder;
+    }
+
     public class MusicBinder extends Binder {
         public MusicService getBoundService() {
             return MusicService.this;
         }
+    }
+
+    public void toggleShuffle(){
+        isShuffleOn = !isShuffleOn;
+    }
+
+    public boolean shuffleState(){
+        return isShuffleOn;
+    }
+
+    public void setFavorite(){
+        db.toggleFavoriteSong(currentSongId);
+    }
+
+    public boolean isFavorite(){
+        return db.getFavoriteStatus(currentSongId) == 1;
+    }
+
+    public void setCurrentFragment(String currentFragment) {
+        this.currentFragment = currentFragment;
+    }
+
+    public String getCurrentFragment() {
+        return currentFragment;
+    }
+
+    public void setCurrentSongId(int songId) {
+        currentSongId = songId;
+    }
+
+    public static int getCurrentSongId() {
+        return currentSongId;
+    }
+
+    public SongModel getCurrentSong(){
+        return currentSong;
+    }
+
+    public MediaPlayer getPlayer(){
+        return mediaPlayer;
     }
 }

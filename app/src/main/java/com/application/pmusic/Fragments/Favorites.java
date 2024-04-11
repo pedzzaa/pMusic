@@ -22,7 +22,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class Favorites extends Fragment implements Loading {
-    private final String TAG = "FAVORITES_FRAGMENT";
+    private static final String fragment = "Favorites";
+    private static final String TAG = "FAVORITES_FRAGMENT";
     private RecyclerView favoritesRecycleView;
     private TextView noFavoritesText;
     private SQLDatabase db;
@@ -34,7 +35,7 @@ public class Favorites extends Fragment implements Loading {
 
         favoritesRecycleView = view.findViewById(R.id.favorites_recycle_view);
         noFavoritesText = view.findViewById(R.id.no_favorites);
-        db = new SQLDatabase(getContext());
+        db = new SQLDatabase(requireContext());
         songs = new ArrayList<>();
 
         displaySongs("");
@@ -43,11 +44,11 @@ public class Favorites extends Fragment implements Loading {
 
     @Override
     public void displaySongs(String searchQuery) {
-        Cursor cursor = searchQuery.isEmpty() ? db.readFavoriteSongs() : db.searchSongs(searchQuery);
+        Cursor cursor = searchQuery.isEmpty() ? db.readFavoriteSongs() : db.searchFavorites(searchQuery);
         storeDataInArray(cursor);
 
-        favoritesRecycleView.setLayoutManager(new LinearLayoutManager(getContext()));
-        favoritesRecycleView.setAdapter(new MainAdapter(getContext(), cursor));
+        favoritesRecycleView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        favoritesRecycleView.setAdapter(new MainAdapter(requireContext(), cursor, fragment));
         notifyAdapterForDataChanged();
     }
 

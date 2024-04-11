@@ -6,16 +6,16 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import androidx.annotation.Nullable;
+
+import com.application.pmusic.Service.MusicService;
 import com.application.pmusic.Service.SongModel;
 
 public class SQLDatabase extends SQLiteOpenHelper {
-    protected Context context;
     private static final String DATABASE_NAME = "AudioFiles";
     private static final int DATABASE_VERSION = 3;
 
     public SQLDatabase(@Nullable Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        this.context = context;
     }
 
     @Override
@@ -67,6 +67,26 @@ public class SQLDatabase extends SQLiteOpenHelper {
         }
     }
 
+    public SongModel getNextFavoriteSong(int id){
+        String query = "SELECT * FROM " + AudioContract.AUDIO_TABLE
+                + " WHERE " + AudioContract.COLUMN_FAVORITE + " = 1 AND "
+                + AudioContract._ID + " > " + id + " ORDER BY " + AudioContract._ID + " ASC LIMIT 1";
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        try (Cursor cursor = db.rawQuery(query, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                int nextId = cursor.getInt(cursor.getColumnIndexOrThrow(AudioContract._ID));
+                String title = cursor.getString(cursor.getColumnIndexOrThrow(AudioContract.COLUMN_TITLE));
+                String data = cursor.getString(cursor.getColumnIndexOrThrow(AudioContract.COLUMN_DATA));
+                String duration = cursor.getString(cursor.getColumnIndexOrThrow(AudioContract.COLUMN_DURATION));
+
+                return new SongModel(nextId, data, title, duration);
+            } else {
+                return null;
+            }
+        }
+    }
+
     public Cursor searchSongs(String query) {
         SQLiteDatabase db = this.getReadableDatabase();
         String[] projection = {
@@ -79,6 +99,23 @@ public class SQLDatabase extends SQLiteOpenHelper {
         };
 
         String selection = AudioContract.COLUMN_TITLE + " LIKE ?";
+        String[] selectionArgs = new String[]{"%" + query + "%"};
+
+        return db.query(AudioContract.AUDIO_TABLE, projection, selection, selectionArgs, null, null, null);
+    }
+
+    public Cursor searchFavorites(String query){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] projection = {
+                AudioContract._ID,
+                AudioContract.COLUMN_TITLE,
+                AudioContract.COLUMN_DATA,
+                AudioContract.COLUMN_DURATION,
+                AudioContract.COLUMN_ALBUM,
+                AudioContract.COLUMN_FAVORITE
+        };
+
+        String selection = AudioContract.COLUMN_TITLE + " LIKE ? AND " + AudioContract.COLUMN_FAVORITE + " = 1";
         String[] selectionArgs = new String[]{"%" + query + "%"};
 
         return db.query(AudioContract.AUDIO_TABLE, projection, selection, selectionArgs, null, null, null);
@@ -159,9 +196,5 @@ public class SQLDatabase extends SQLiteOpenHelper {
         }
         db.close();
         return count;
-    }
-
-    public boolean checkResult(long result){
-        return result != -1;
     }
 }

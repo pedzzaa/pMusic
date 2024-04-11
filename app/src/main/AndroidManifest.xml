@@ -14,10 +14,10 @@
         android:roundIcon="@mipmap/headphones_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.PMusic"
-        tools:targetApi="31">
+        tools:targetApi="34">
         <activity
             android:name=".Player.MusicPlayer"
-            android:exported="false"
+            android:exported="true"
             android:parentActivityName=".Main.MainActivity"/>
 
         <service

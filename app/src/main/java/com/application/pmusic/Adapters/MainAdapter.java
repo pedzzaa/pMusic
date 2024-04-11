@@ -20,10 +20,12 @@ import com.application.pmusic.Service.MusicService;
 public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
     private final Context context;
     private final Cursor cursor;
+    private final String fragmentIdentifier;
 
-    public MainAdapter(Context context, Cursor cursor){
+    public MainAdapter(Context context, Cursor cursor, String fragmentIdentifier){
         this.context = context;
         this.cursor = cursor;
+        this.fragmentIdentifier = fragmentIdentifier;
     }
 
     @NonNull
@@ -47,6 +49,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
         holder.songCard.setOnClickListener(click -> {
             Intent intent = new Intent(context, MusicPlayer.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.putExtra("fragment", fragmentIdentifier);
             intent.putExtra("songId", id);
             context.startActivity(intent);
         });

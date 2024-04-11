@@ -12,7 +12,7 @@ import com.application.pmusic.Fragments.Recent;
 import java.util.ArrayList;
 
 public class VPAdapter extends FragmentStateAdapter {
-    public String[] titles = {"Recent", "Albums", "Favorites"};
+    public static String[] titles = {"Recent", "Albums", "Favorites"};
     private final ArrayList<Fragment> fragments = new ArrayList<>();
     private int currentFragmentPosition = 0;
 
@@ -45,11 +45,7 @@ public class VPAdapter extends FragmentStateAdapter {
     }
 
     public Fragment getFragment(int position){
-        if (position >= 0 && position < fragments.size()) {
-            return fragments.get(position);
-        } else {
-            return null;
-        }
+        return (position >= 0 && position < fragments.size()) ? fragments.get(position) : null;
     }
 
     public void setCurrentFragmentPosition(int position) {

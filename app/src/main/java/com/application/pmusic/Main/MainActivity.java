@@ -10,21 +10,25 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import androidx.appcompat.widget.SearchView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 import com.application.pmusic.Adapters.VPAdapter;
+import com.application.pmusic.Fragments.Favorites;
+import com.application.pmusic.Fragments.Loading;
 import com.application.pmusic.Fragments.Recent;
 import com.application.pmusic.Player.MusicPlayer;
 import com.application.pmusic.R;
@@ -33,11 +37,11 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 public class MainActivity extends AppCompatActivity {
-    private final int PERMISSION_REQUEST_CODE = 102;
+    private static final String TAG = "MAIN";
+    private static final int PERMISSION_REQUEST_CODE = 102;
+    private static VPAdapter vpAdapter;
+    private static ViewPager2 viewPager2;
     private RelativeLayout miniPlayer;
-    private VPAdapter vpAdapter;
-    private TabLayout tabLayout;
-    private ViewPager2 viewPager2;
     private MusicService musicService;
     private ImageButton playPrevious, pausePlay, playNext;
     private TextView songTitle;
@@ -61,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        tabLayout = findViewById(R.id.tabs);
+        TabLayout tabLayout = findViewById(R.id.tabs);
         miniPlayer = findViewById(R.id.mini_player);
         viewPager2 = findViewById(R.id.view_pager);
         playPrevious = findViewById(R.id.play_previous);
@@ -72,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
         vpAdapter = new VPAdapter(this);
         viewPager2.setAdapter(vpAdapter);
-        new TabLayoutMediator(tabLayout, viewPager2, (tab, position) -> tab.setText(vpAdapter.titles[position])).attach();
+        new TabLayoutMediator(tabLayout, viewPager2, (tab, position) -> tab.setText(VPAdapter.titles[position])).attach();
 
         if (!checkPermission()) {
             requestPermissions();
@@ -107,10 +111,8 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                Fragment currentFragment = vpAdapter.getFragment(viewPager2.getCurrentItem());
-                if (currentFragment instanceof Recent) {
-                    ((Recent) currentFragment).displaySongs(newText);
-                }
+                Fragment currentFragment = getCurrentFragment();
+                ((Loading) currentFragment).displaySongs(newText);
                 return true;
             }
         });
@@ -154,28 +156,30 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == PERMISSION_REQUEST_CODE) {
-            boolean permissionsGranted = true;
+        if (requestCode != PERMISSION_REQUEST_CODE) {
+            Log.i(TAG, "PERMISSIONS DECLINED!");
+            return;
+        }
 
-            for (int grantResult : grantResults) {
-                if (grantResult != PackageManager.PERMISSION_GRANTED) {
-                    permissionsGranted = false;
-                    break;
-                }
+        boolean permissionsGranted = true;
+        for (int grantResult : grantResults) {
+            if (grantResult != PackageManager.PERMISSION_GRANTED) {
+                permissionsGranted = false;
+                break;
             }
+        }
 
-            if (!permissionsGranted) {
-                CommonFunctions.showToast(MainActivity.this, "Permissions required!");
-                requestPermissions();
-            } else {
-                new Handler().postDelayed(() -> {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setTitle("Restart application for results");
-                    builder.setMessage("All required permissions are granted. Please restart the application for the changes to take effect.");
-                    builder.setPositiveButton("OK", (dialog, which) -> finish());
-                    builder.show();
-                }, 100);
-            }
+        if (!permissionsGranted) {
+            Toast.makeText(MainActivity.this, "Permissions required!", Toast.LENGTH_SHORT).show();
+            requestPermissions();
+        } else {
+            new Handler().postDelayed(() -> {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Restart application for results");
+                builder.setMessage("All required permissions are granted. Please restart the application for the changes to take effect.");
+                builder.setPositiveButton("OK", (dialog, which) -> finish());
+                builder.show();
+            }, 100);
         }
     }
 
@@ -183,38 +187,49 @@ public class MainActivity extends AppCompatActivity {
         pausePlay.setOnClickListener(click -> musicService.pausePlay());
 
         playPrevious.setOnClickListener(click -> {
-            musicService.playPrevious();
+            musicService.clicked("previous");
             songTitle.setText(musicService.getCurrentSong().getTitle());
-            updateFragmentAdapter();
+            getCurrentFragment().onResume();
         });
 
         playNext.setOnClickListener(click -> {
-            musicService.playNext();
+            musicService.clicked("next");
             songTitle.setText(musicService.getCurrentSong().getTitle());
-            updateFragmentAdapter();
+            getCurrentFragment().onResume();
         });
 
         miniPlayer.setOnClickListener(click -> {
             Intent intent = new Intent(MainActivity.this, MusicPlayer.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.putExtra("songId", musicService.getCurrentSongId());
+            intent.putExtra("songId", MusicService.getCurrentSongId());
+            intent.putExtra("fragment", sendCurrentFragment());
             startActivity(intent);
         });
     }
 
-    private void updateFragmentAdapter(){
-        vpAdapter.setCurrentFragmentPosition(viewPager2.getCurrentItem());
-        Fragment currentFragment = vpAdapter.getFragment(viewPager2.getCurrentItem());
+    private String sendCurrentFragment(){
+        Fragment currentFragment = getCurrentFragment();
         if (currentFragment instanceof Recent) {
-            currentFragment.onResume();
+            return "Recent";
+        } else if (currentFragment instanceof Favorites) {
+            return "Favorites";
+        } else {
+            return "Albums";
         }
+    }
+
+    public static Fragment getCurrentFragment(){
+        return vpAdapter.getFragment(viewPager2.getCurrentItem());
     }
 
     @Override
     protected void onResume() {
-        super.onResume();
-        if(musicService.getCurrentSong() != null){
-            songTitle.setText(musicService.getCurrentSong().getTitle());
+        if (musicService.getCurrentSong() != null) {
+            runOnUiThread(() -> {
+                songTitle.setText(musicService.getCurrentSong().getTitle());
+                getCurrentFragment().onResume();
+            });
         }
+        super.onResume();
     }
 }

@@ -63,7 +63,7 @@ public class MusicService extends Service {
             case "Albums":
                 break;
             case "Favorites":
-                if(favoriteSongs.length - 1 == songPositionInArray()){
+                if(songPositionInArray() == favoriteSongs.length - 1){
                     setCurrentSongId(favoriteSongs[0]);
                 }
                 setCurrentSongId(favoriteSongs[songPositionInArray() + 1]);

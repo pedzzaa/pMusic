@@ -186,13 +186,13 @@ public class MainActivity extends AppCompatActivity {
     private void initButtonClickListeners(){
         pausePlay.setOnClickListener(click -> musicService.pausePlay());
 
-        playPrevious.setOnClickListener(click -> {
+        playNext.setOnClickListener(click -> {
             musicService.playNext();
             songTitle.setText(musicService.getCurrentSong().getTitle());
             getCurrentFragment().onResume();
         });
 
-        playNext.setOnClickListener(click -> {
+        playPrevious.setOnClickListener(click -> {
             musicService.playPrevious();
             songTitle.setText(musicService.getCurrentSong().getTitle());
             getCurrentFragment().onResume();

@@ -9,8 +9,8 @@ import android.os.IBinder;
 import android.provider.MediaStore;
 import android.util.Log;
 
-import com.application.pmusic.Adapters.VPAdapter;
 import com.application.pmusic.Database.SQLDatabase;
+
 import java.io.IOException;
 import java.util.Random;
 import java.util.concurrent.Executor;
@@ -22,6 +22,7 @@ public class MusicService extends Service {
     private final String TAG = "STARTED_SERVICE";
     private String currentFragment = null;
     private static int currentSongId = 0;
+    private static int[] favoriteSongs;
     private int totalSongs;
     private boolean isShuffleOn = false;
     private SQLDatabase db;
@@ -43,40 +44,49 @@ public class MusicService extends Service {
         }
 
         totalSongs = db.getCount();
+        favoriteSongs = db.getFavoriteSongsIds();
         mediaPlayer = new MediaPlayer();
-    }
-
-    public void clicked(String button){
-        String[] buttons = {"previous", "next"};
-
-        if(currentFragment.equals(VPAdapter.titles[0])){
-            if(button.equals(buttons[0])){
-                playPrevious();
-            }else{
-                playNext();
-            }
-            return;
-        }
-
-        playSong(1);
     }
 
     public void shuffleSongs(){
         mediaPlayer.reset();
         setCurrentSongId(totalSongs > 0 ? new Random().nextInt(totalSongs) + 1 : -1);
-        playSong(0);
+        playSong();
     }
 
-    private void playNext(){
+    public void playNext(){
         mediaPlayer.reset();
-        setCurrentSongId(currentSongId != totalSongs ? currentSongId + 1 : 1);
-        playSong(0);
+        switch (currentFragment){
+            case "Recent":
+                setCurrentSongId(currentSongId != totalSongs ? currentSongId + 1 : 1);
+                break;
+            case "Albums":
+                break;
+            case "Favorites":
+                if(favoriteSongs.length - 1 == songPositionInArray()){
+                    setCurrentSongId(favoriteSongs[0]);
+                }
+                setCurrentSongId(favoriteSongs[songPositionInArray() + 1]);
+        }
+        playSong();
     }
 
-    private void playPrevious(){
+    public void playPrevious(){
         mediaPlayer.reset();
-        setCurrentSongId(currentSongId != 1 ? currentSongId - 1 : totalSongs);
-        playSong(0);
+
+        switch (currentFragment){
+            case "Recent":
+                setCurrentSongId(currentSongId != 1 ? currentSongId - 1 : totalSongs);
+                break;
+            case "Albums":
+                break;
+            case "Favorites":
+                if(songPositionInArray() == 0){
+                    setCurrentSongId(favoriteSongs[favoriteSongs.length - 1]);
+                }
+                setCurrentSongId(favoriteSongs[songPositionInArray() - 1]);
+        }
+        playSong();
     }
 
     public void pausePlay(){
@@ -87,18 +97,10 @@ public class MusicService extends Service {
         }
     }
 
-    public void playSong(int identifier){
+    public void playSong(){
         mediaPlayer.reset();
 
-        switch (identifier){
-            case 0:
-                currentSong = db.getSong(currentSongId);
-                break;
-            case 1:
-                currentSong = db.getNextFavoriteSong(currentSongId);
-                break;
-        }
-
+        currentSong = db.getSong(currentSongId);
         try {
             mediaPlayer.setDataSource(currentSong.getPath());
             mediaPlayer.prepare();
@@ -114,6 +116,15 @@ public class MusicService extends Service {
         } catch (IOException e) {
             Log.d(TAG, "Something went wrong :(");
         }
+    }
+
+    private int songPositionInArray(){
+        for (int i = 0; i < favoriteSongs.length; i++) {
+            if(favoriteSongs[i] == currentSongId){
+                return i;
+            }
+        }
+        return -1;
     }
 
     @Override
@@ -174,6 +185,7 @@ public class MusicService extends Service {
 
     public void setFavorite(){
         db.toggleFavoriteSong(currentSongId);
+        favoriteSongs = db.getFavoriteSongsIds();
     }
 
     public boolean isFavorite(){

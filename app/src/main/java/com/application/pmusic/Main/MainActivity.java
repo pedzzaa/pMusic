@@ -187,13 +187,13 @@ public class MainActivity extends AppCompatActivity {
         pausePlay.setOnClickListener(click -> musicService.pausePlay());
 
         playPrevious.setOnClickListener(click -> {
-            musicService.clicked("previous");
+            musicService.playNext();
             songTitle.setText(musicService.getCurrentSong().getTitle());
             getCurrentFragment().onResume();
         });
 
         playNext.setOnClickListener(click -> {
-            musicService.clicked("next");
+            musicService.playPrevious();
             songTitle.setText(musicService.getCurrentSong().getTitle());
             getCurrentFragment().onResume();
         });
@@ -225,10 +225,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         if (musicService.getCurrentSong() != null) {
-            runOnUiThread(() -> {
-                songTitle.setText(musicService.getCurrentSong().getTitle());
-                getCurrentFragment().onResume();
-            });
+            runOnUiThread(() -> songTitle.setText(musicService.getCurrentSong().getTitle()));
         }
         super.onResume();
     }

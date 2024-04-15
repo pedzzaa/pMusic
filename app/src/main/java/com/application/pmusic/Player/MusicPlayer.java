@@ -89,7 +89,7 @@ public class MusicPlayer extends AppCompatActivity implements MusicPlayerCallbac
                 return;
             }
             musicService.setCurrentSongId(songId);
-            musicService.playSong(0);
+            musicService.playSong();
         }, 50);
     }
 
@@ -124,13 +124,13 @@ public class MusicPlayer extends AppCompatActivity implements MusicPlayerCallbac
             if (musicService.shuffleState()) {
                 musicService.shuffleSongs();
             } else {
-                musicService.clicked("next");
+                musicService.playNext();
             }
             setTitleAndDuration();
         });
 
         previous.setOnClickListener(click -> {
-            musicService.clicked("previous");
+            musicService.playPrevious();
             setTitleAndDuration();
         });
 

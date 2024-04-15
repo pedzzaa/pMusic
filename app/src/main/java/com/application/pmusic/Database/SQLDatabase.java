@@ -36,6 +36,12 @@ public class SQLDatabase extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + AudioContract.AUDIO_TABLE);
     }
 
+    public void resetTable() {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DROP TABLE IF EXISTS " + AudioContract.AUDIO_TABLE);
+        onCreate(db);
+    }
+
     public void addSong(String title, String data, String duration, String album, int favorite){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -61,26 +67,6 @@ public class SQLDatabase extends SQLiteOpenHelper {
                 String duration = cursor.getString(cursor.getColumnIndexOrThrow(AudioContract.COLUMN_DURATION));
 
                 return new SongModel(id, data, title, duration);
-            } else {
-                return null;
-            }
-        }
-    }
-
-    public SongModel getNextFavoriteSong(int id){
-        String query = "SELECT * FROM " + AudioContract.AUDIO_TABLE
-                + " WHERE " + AudioContract.COLUMN_FAVORITE + " = 1 AND "
-                + AudioContract._ID + " > " + id + " ORDER BY " + AudioContract._ID + " ASC LIMIT 1";
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        try (Cursor cursor = db.rawQuery(query, null)) {
-            if (cursor != null && cursor.moveToFirst()) {
-                int nextId = cursor.getInt(cursor.getColumnIndexOrThrow(AudioContract._ID));
-                String title = cursor.getString(cursor.getColumnIndexOrThrow(AudioContract.COLUMN_TITLE));
-                String data = cursor.getString(cursor.getColumnIndexOrThrow(AudioContract.COLUMN_DATA));
-                String duration = cursor.getString(cursor.getColumnIndexOrThrow(AudioContract.COLUMN_DURATION));
-
-                return new SongModel(nextId, data, title, duration);
             } else {
                 return null;
             }
@@ -146,10 +132,17 @@ public class SQLDatabase extends SQLiteOpenHelper {
         return cursor;
     }
 
-    public void resetTable() {
-        SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("DROP TABLE IF EXISTS " + AudioContract.AUDIO_TABLE);
-        onCreate(db);
+    public int[] getFavoriteSongsIds(){
+        Cursor cursor = readFavoriteSongs();
+        int[] array = new int[cursor.getCount()];
+        int i = 0;
+
+        while (cursor.moveToNext()){
+            array[i] = cursor.getInt(cursor.getColumnIndexOrThrow(AudioContract._ID));
+            ++i;
+        }
+
+        return array;
     }
 
     public void toggleFavoriteSong(int id) {
